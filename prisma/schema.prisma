@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EstadoHabitacion {
+  DISPONIBLE
+  OCUPADA
+  MANTENIMIENTO
+  LIMPIEZA
+}
+
+enum TipoCliente {
+  TRABAJADOR_FAENA
+  TURISTA
+}
+
+enum EstadoReserva {
+  PENDIENTE
+  CONFIRMADA
+  CANCELADA
+  FINALIZADA
+}
+
+model Habitacion {
+  id         String           @id @default(uuid())
+  numero     String // Número o nombre de la habitación (ej. "Habitación 1")
+  capacidad  Int // Capacidad de camas
+  precioBase Decimal // Precio base por persona / noche
+  estado     EstadoHabitacion @default(DISPONIBLE)
+  reservas   Reserva[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+}
+
+model Cliente {
+  id           String      @id @default(uuid())
+  nombre       String
+  telefono     String?
+  rutPasaporte String?
+  tipo         TipoCliente @default(TURISTA)
+  empresa      String? // Nombre de la empresa (si es trabajador de faena)
+  reservas     Reserva[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Reserva {
+  id            String            @id @default(uuid())
+  codigoReserva String?           @unique // Código amigable único ej. "RES-2026-041892"
+  clienteId     String
+  cliente       Cliente           @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  habitacionId  String
+  habitacion    Habitacion        @relation(fields: [habitacionId], references: [id], onDelete: Cascade)
+  fechaCheckIn  DateTime
+  fechaCheckOut DateTime
+  estado        EstadoReserva     @default(PENDIENTE)
+  solicitudCambio String?         // Notas o solicitudes de cambio enviadas desde el portal del huésped
+  servicios     ReservaServicio[]
+  calificacion  Calificacion?
+  metodoPago    String?           @default("TRANSFERENCIA") // TRANSFERENCIA, DEBITO, CREDITO
+  estadoPago    String?           @default("PENDIENTE")     // PENDIENTE, PAGADO
+  montoPagado   Int?              @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model ReservaServicio {
+  id                  String   @id @default(uuid())
+  reservaId           String
+  reserva             Reserva  @relation(fields: [reservaId], references: [id], onDelete: Cascade)
+  fechaServicio       DateTime
+  desayunosCant       Int      @default(0)
+  colacionesCant      Int      @default(0)
+  cenasCant           Int      @default(0)
+  restriccionDietaria String? // Ej. "Sin sal", "Vegetariano", "Sin gluten"
+  preferenciaAlmuerzo String? // Ej. "Cazuela de pollo" o "Pescado frito"
+  preferenciaCena     String? // Ej. "Sopa casera" o "Plato ligero"
+  renunciaDesayuno    Boolean  @default(false)
+  renunciaAlmuerzo    Boolean  @default(false)
+  renunciaCena        Boolean  @default(false)
+  solicitudExtraNotas String? // Ej. "Solicita agregar almuerzo adicional"
+  estadoDesayuno      String?  @default("PENDIENTE") // PENDIENTE, EN_PREPARACION, SERVIDO, NO_SHOW
+  estadoColacion      String?  @default("PENDIENTE")
+  estadoCena          String?  @default("PENDIENTE")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model MenuDiario {
+  id                        String   @id @default(uuid())
+  fecha                     DateTime @unique
+  horarioDesayuno           String?  @default("08:00 - 09:30")
+  horarioAlmuerzo           String?  @default("13:00 - 15:00")
+  horarioCena               String?  @default("20:00 - 21:30")
+  desayunoTexto             String?
+  desayunoImagen            String?
+  desayunoDisponible        Boolean  @default(true)
+  almuerzoOpcion1           String?
+  almuerzoOpcion1Imagen     String?
+  almuerzoOpcion1Disponible Boolean  @default(true)
+  almuerzoOpcion2           String?
+  almuerzoOpcion2Imagen     String?
+  almuerzoOpcion2Disponible Boolean  @default(true)
+  cenaOpcion1               String?
+  cenaOpcion1Imagen         String?
+  cenaOpcion1Disponible     Boolean  @default(true)
+  cenaOpcion2               String?
+  cenaOpcion2Imagen         String?
+  cenaOpcion2Disponible     Boolean  @default(true)
+  colacionTexto             String?
+  colacionImagen            String?
+  colacionDisponible        Boolean  @default(true)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
+model Calificacion {
+  id          String   @id @default(uuid())
+  reservaId   String   @unique
+  reserva     Reserva  @relation(fields: [reservaId], references: [id], onDelete: Cascade)
+  estrellas   Int      // 1 a 5
+  comentario  String?  // Opinión del huésped
+  nombreAutor String   // Nombre visible en el home
+  aprobado    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

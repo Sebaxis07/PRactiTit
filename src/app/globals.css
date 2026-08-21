@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+:root {
+  --sand: #E1DCD2;
+  --sand-deep: #EBDCBE;
+  --terracotta: #D9583B;
+  --terracotta-deep: #731D0A;
+  --cactus: #1EAD50;
+  --ink: #2A2418;
+  --card: #FFFAF1;
+  --border: #DDD0B3;
+  --muted: #7A6F5A;
+
+  --background: var(--sand);
+  --foreground: var(--ink);
+}
+
+@theme inline {
+  --color-sand: var(--sand);
+  --color-sand-deep: var(--sand-deep);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-deep: var(--terracotta-deep);
+  --color-cactus: var(--cactus);
+  --color-ink: var(--ink);
+  --color-card: var(--card);
+  --color-sand-border: var(--border);
+  --color-muted: var(--muted);
+
+  --animate-fade-in-up: fade-in-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-scale-in: scale-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+body {
+  background: var(--sand);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Clases de Scroll Reveal Premium */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
